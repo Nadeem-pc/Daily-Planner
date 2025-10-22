@@ -10,6 +10,7 @@ Daily Planner is a **To-Do app** built using **React, JavaScript, HTML, and CSS*
 - **Prevent Duplicates:** The app avoids duplicate task entries.
 - **Notifications:** Success and error messages are displayed using toast notifications (e.g., "Task already added").
 - **Delete Tasks:** Option to delete tasks when no longer needed.
+- **Persistent Storage:** Tasks are stored in **localStorage** so that data is preserved even after the browser is closed or refreshed.
 
 ## Technologies Used
 
