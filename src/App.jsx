@@ -1,16 +1,23 @@
-import { useState } from 'react'
-import './index.css'
+import './index.css';
+import { useState } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
-  const [tasks, setTasks] = useState([])
-  const [data, setData] = useState('')
-  const [taskDate, setTaskDate] = useState('')
+  const [data, setData] = useState('');
+  const [tasks, setTasks] = useState([]);
+  const [taskDate, setTaskDate] = useState('');
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState(null);
+
 
   const addTask = (e) => {
     e.preventDefault()
 
     if(tasks.some(task => task.text === data.trim())){
-      alert('Task already added')
+      toast.error('Task already added')
+      setData('')
+      setTaskDate('')
     }
     else if (data.trim()) {
       const newTask = {
@@ -30,15 +37,12 @@ function App() {
       setTasks([newTask, ...tasks])
       setData('')
       setTaskDate('')
+      toast.success('Task Added Successfully')
     }
   }
 
   const getInput = (e) => {
     setData(e.target.value)
-  }
-
-  const deleteTask = (id) => {
-    setTasks(tasks.filter(task => task.id !== id))
   }
 
   const toggleComplete = (id) => {
@@ -93,7 +97,10 @@ function App() {
                 </div>
                 <div className="task-actions">
                   <button 
-                    onClick={() => deleteTask(task.id)}
+                    onClick={() => {
+                      setTaskToDelete(task.id);
+                      setShowConfirm(true);
+                    }}
                     className="task-action-button delete-button"
                   >
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -109,6 +116,41 @@ function App() {
           </div>
         )}
       </div>
+
+      {showConfirm && (
+        <div className="modal-backdrop">
+          <div className="modal">
+            <h3>Are you sure you want to delete this task?</h3>
+            <div className="modal-buttons">
+              <button
+                onClick={() => {
+                  setTasks(tasks.filter(task => task.id !== taskToDelete));
+                  setShowConfirm(false);
+                  toast.info("Task Deleted");
+                }}
+                className="confirm-button"
+              >
+                Yes
+              </button>
+              <button
+                onClick={() => setShowConfirm(false)}
+                className="cancel-button"
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        hideProgressBar={true}
+        newestOnTop={false}
+        closeOnClick
+        pauseOnHover
+      />
     </div>
   )
 }
