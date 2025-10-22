@@ -1,25 +1,30 @@
 import './index.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   const [data, setData] = useState('');
-  const [tasks, setTasks] = useState([]);
+  const [tasks, setTasks] = useState(() => {
+    const savedTasks = localStorage.getItem('tasks');
+    return savedTasks ? JSON.parse(savedTasks) : [];
+  });
   const [taskDate, setTaskDate] = useState('');
   const [showConfirm, setShowConfirm] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState(null);
 
+  useEffect(() => {
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+  }, [tasks]);
 
   const addTask = (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    if(tasks.some(task => task.text === data.trim())){
-      toast.error('Task already added')
-      setData('')
-      setTaskDate('')
-    }
-    else if (data.trim()) {
+    if (tasks.some(task => task.text === data.trim())) {
+      toast.error('Task already added');
+      setData('');
+      setTaskDate('');
+    } else if (data.trim()) {
       const newTask = {
         id: Date.now(),
         text: data,
@@ -33,23 +38,30 @@ function App() {
           year: 'numeric'
         }),
         completed: false,
-      }
-      setTasks([newTask, ...tasks])
-      setData('')
-      setTaskDate('')
-      toast.success('Task Added Successfully')
+      };
+      setTasks([newTask, ...tasks]);
+      setData('');
+      setTaskDate('');
+      toast.success('Task Added Successfully');
     }
-  }
+  };
 
   const getInput = (e) => {
-    setData(e.target.value)
-  }
+    setData(e.target.value);
+  };
 
   const toggleComplete = (id) => {
     setTasks(tasks.map(task => 
       task.id === id ? { ...task, completed: !task.completed } : task
-    ))
-  }
+    ));
+  };
+
+  const confirmDeleteTask = () => {
+    const updatedTasks = tasks.filter(task => task.id !== taskToDelete);
+    setTasks(updatedTasks);
+    setShowConfirm(false);
+    toast.info("Task Deleted");
+  };
 
   return (
     <div className="app-background">
@@ -123,11 +135,7 @@ function App() {
             <h3>Are you sure you want to delete this task?</h3>
             <div className="modal-buttons">
               <button
-                onClick={() => {
-                  setTasks(tasks.filter(task => task.id !== taskToDelete));
-                  setShowConfirm(false);
-                  toast.info("Task Deleted");
-                }}
+                onClick={confirmDeleteTask}
                 className="confirm-button"
               >
                 Yes
@@ -155,4 +163,4 @@ function App() {
   )
 }
 
-export default App
+export default App;
